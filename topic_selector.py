@@ -1,6 +1,7 @@
 # topic_selector.py
 import random
 import datetime
+from collections import defaultdict
 
 TOPIC_MAP = {
     0: [  # 월요일
@@ -148,5 +149,15 @@ TOPIC_MAP = {
 def get_random_topic():
     today = datetime.datetime.today().weekday()
     today_topics = TOPIC_MAP.get(today, [])
-    return random.choice(today_topics) if today_topics else None
 
+    if not today_topics:
+        return []
+
+    # 게시판(board_type)별로 묶기
+    grouped = defaultdict(list)
+    for topic in today_topics:
+        grouped[topic['board_type']].append(topic)
+
+    # 각 게시판에서 하나씩 랜덤 선택
+    selected = [random.choice(topics) for topics in grouped.values()]
+    return selected

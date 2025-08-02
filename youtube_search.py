@@ -18,9 +18,6 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-topic = get_random_topic()  # Get a random topic from the topic selector
-SEARCH_QUERY = [topic["keyword"]]
-print(f"📅 Selected topic: {topic['board_type']} - {topic['keyword']}")
 
 def parse_duration_to_minutes(duration_str):
     duration = isodate.parse_duration(duration_str)
@@ -79,14 +76,19 @@ def search_youtube(query):
 def download_3min_audio(video_url, output_filename):
     command = [
         "yt-dlp",
-        "--cookies", "cookies.txt",  # ✅ 필수!
         "--download-sections", "*00:00:00-00:03:00",
         "-f", "bestaudio",
         "--extract-audio",
         "--audio-format", "mp3",
         "-o", output_filename,
-        video_url,
     ]
+
+    # ✅ 로컬에서만 cookies.txt 사용
+    if not os.getenv("GITHUB_ACTIONS"):  # GitHub에서는 True, 로컬은 None
+        if os.path.exists("cookies.txt"):
+            command += ["--cookies", "cookies.txt"]
+
+    command.append(video_url)
 
     try:
         subprocess.run(command, check=True)
@@ -104,8 +106,17 @@ def transcribe_audio(audio_path: str) -> str:
     return transcript.text
 
 def summarize_text_korean(text: str, max_tokens: int = 400) -> str:
+    import re
+
+    def clean(text):
+        text = re.sub(r"\[.*?\]", "", text)  # [문구] 제거
+        text = re.sub(r"\s+", " ", text)
+        return text.strip()[:1000]  # 앞에서 1000자만 사용
+
+    short_text = clean(text)
+
     prompt = f"""
-다음은 유튜브 영상의 자막입니다. 핵심 내용을 한국어로 400자 이내로 요약해 주세요.\n\n{text}
+다음은 유튜브 영상의 자막입니다. 핵심 내용을 한국어로 400자 이내로 요약해 주세요.\n{short_text}
 """
 
     response = client.chat.completions.create(
@@ -137,49 +148,57 @@ def post_to_supabase(title, content, board_type, source, author):
 
 # Run test
 if __name__ == "__main__":
-    videos = search_youtube(SEARCH_QUERY)
-    if videos:
+    selected_topics = get_random_topic()
+    if not selected_topics:
+        print("❗ No topics found.")    
+    else:
+        print(f"🔍 {len(selected_topics)} topics selected for processing.")
+
+    for topic in selected_topics:
+        SEARCH_QUERY = [topic["keyword"]]
+        print(f"\n🔍 [{topic['board_type']}] '{topic['keyword']}' 유튜브 검색 중...")
+
+        videos = search_youtube(SEARCH_QUERY)
+        if not videos:
+            print("❗ No videos found.")
+            continue
+
         video = videos[0]  # 첫 번째 영상만 선택
         print(f"🎥 Top video: {video['title']}")
-        audio_filename = "audio.mp3"
-        download_3min_audio(video["url"], output_filename=audio_filename)
 
-        result = transcribe_audio(audio_filename)
-        print("🎧 Transcribed text:\n", result)
+        try:
+            audio_filename = "audio.mp3"
+            download_3min_audio(video["url"], output_filename=audio_filename)
 
-        summary = summarize_text_korean(result)
+            result = transcribe_audio(audio_filename)
+            summary = summarize_text_korean(result)
 
-        # 🎯 영상 제목 + 요약 + 영상 링크 포함한 내용 생성
-        # 🔽 유튜브 전체 검색 결과 리스트 추가
-        related_videos = "\n".join(
-            [f"🔸 {v['title']} 👉 {v['url']}" for v in videos]
-        )
-        title = f"🎥 {video['title']}"
-        content = f"""🎥 영상 제목: {video['title']}
+            related_videos = "\n".join(
+                [f"🔸 {v['title']} 👉 {v['url']}" for v in videos]
+            )
+            title = f"🎥 {video['title']}"
+            content = f"""🎥 영상 제목: {video['title']}
 
-        📅 업로드 날짜: {video['published_at']}
-        📺 채널: {video['channel']}
-        🔗 영상 링크: {video['url']}
+📅 업로드 날짜: {video['published_at']}
+📺 채널: {video['channel']}
+🔗 영상 링크: {video['url']}
 
-        📝 요약:
-        {summary}
+📝 요약:
+{summary}
 
-        🎧 자막 내용:
-        {result}
+🎧 자막 내용:
+{result}
 
-        📺 관련 영상 목록:
-        {related_videos}
-   
-        """
-        print("📤 게시글 업로드 중...")
-        print("✂️ 요약 결과:\n", content)
-        post_to_supabase(
-            title=title,
-            content=content,
-            board_type=topic["board_type"],
-            source="youtube",
-            author="🤖AI Bot",
-        )        
-    else:
-        print("❗ No videos found.")
-
+📺 관련 영상 목록:
+{related_videos}
+"""
+            print("📤 게시글 업로드 중...")
+            post_to_supabase(
+                title=title,
+                content=content,
+                board_type=topic["board_type"],
+                source="youtube",
+                author="🤖AI Bot",
+            )
+        except Exception as e:
+            print(f"❌ 오류 발생: {e}")
