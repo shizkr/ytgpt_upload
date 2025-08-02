@@ -1,0 +1,11 @@
+.streamlit/secrets.toml
+.env
+*.pdf
+*.png
+*.mp3
+*.jpg
+*.html
+*.swo
+security/*.json
+.DS_Store
+.github/.DS_Store
