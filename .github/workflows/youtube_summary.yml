@@ -21,6 +21,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: 🔐 Save cookies.txt from secret
+        run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
