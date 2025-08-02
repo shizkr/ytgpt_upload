@@ -140,7 +140,7 @@ if __name__ == "__main__":
     if videos:
         video = videos[0]  # 첫 번째 영상만 선택
         print(f"🎥 Top video: {video['title']}")
-        audio_filename = f"{video['video_id']}.mp3"
+        audio_filename = "audio.mp3"
         download_3min_audio(video["url"], output_filename=audio_filename)
 
         result = transcribe_audio(audio_filename)
