@@ -21,6 +21,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install ffmpeg ✅
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: 🔐 Save cookies.txt from secret
         run: echo "${{ secrets.COOKIES_TXT }}" > cookies.txt
 
