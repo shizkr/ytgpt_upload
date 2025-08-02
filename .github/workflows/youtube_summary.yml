@@ -1,0 +1,45 @@
+name: Daily YouTube Summary
+
+on:
+  schedule:
+    - cron: '0 2 * * *'     # 1회차 - 02:00 UTC
+    - cron: '5 2 * * *'     # 2회차 - 02:05 UTC
+    - cron: '10 2 * * *'    # 3회차 - 02:10 UTC
+    - cron: '15 2 * * *'    # 4회차 - 02:15 UTC
+    - cron: '20 2 * * *'    # 5회차 - 02:20 UTC
+    - cron: '25 2 * * *'    # 6회차 - 02:25 UTC
+    - cron: '30 2 * * *'    # 7회차 - 02:30 UTC
+    - cron: '35 2 * * *'    # 8회차 - 02:35 UTC
+    - cron: '40 2 * * *'    # 9회차 - 02:40 UTC
+    - cron: '45 2 * * *'    # 10회차 - 02:45 UTC
+  workflow_dispatch:
+
+jobs:
+  run-daily-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run 10 video summaries
+        run: |
+          for i in {1..2}
+          do
+            echo "🚀 Run #$i"
+            python youtube_search.py
+            sleep 5  # 혹시 API rate 제한 고려해 5초 간격 추가
+          done
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
