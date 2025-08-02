@@ -79,6 +79,7 @@ def search_youtube(query):
 def download_3min_audio(video_url, output_filename):
     command = [
         "yt-dlp",
+        "--cookies", "cookies.txt",  # ✅ 필수!
         "--download-sections", "*00:00:00-00:03:00",
         "-f", "bestaudio",
         "--extract-audio",
