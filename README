@@ -3,6 +3,5 @@
 2️⃣ 3-Minute Audio Extraction (yt-dlp)
 3️⃣ Whisper STT Transcription (OpenAI API)
 4️⃣ GPT-4o Summary (200 Characters)
-5️⃣ Auto Board Classification (Supabase DB)
 6️⃣ Post Upload to Supabase
 7️⃣ Daily Execution via GitHub Actions Cron Job
