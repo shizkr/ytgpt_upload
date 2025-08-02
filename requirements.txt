@@ -1,0 +1,5 @@
+openai
+yt-dlp
+python-dotenv
+requests
+supabase
