@@ -154,6 +154,8 @@ if __name__ == "__main__":
     else:
         print(f"🔍 {len(selected_topics)} topics selected for processing.")
 
+    audio_filename = "audio.mp3"
+
     for topic in selected_topics:
         SEARCH_QUERY = [topic["keyword"]]
         print(f"\n🔍 [{topic['board_type']}] '{topic['keyword']}' 유튜브 검색 중...")
@@ -167,12 +169,16 @@ if __name__ == "__main__":
         print(f"🎥 Top video: {video['title']}")
 
         try:
-            audio_filename = "audio.mp3"
+            
             download_3min_audio(video["url"], output_filename=audio_filename)
+
+            if not os.path.exists(audio_filename):
+                raise FileNotFoundError("❗ audio.mp3 파일이 생성되지 않았습니다.")
 
             result = transcribe_audio(audio_filename)
             summary = summarize_text_korean(result)
 
+            print("🎧 오디오 다운로드 완료")
             related_videos = "\n".join(
                 [f"🔸 {v['title']} 👉 {v['url']}" for v in videos]
             )
@@ -202,3 +208,8 @@ if __name__ == "__main__":
             )
         except Exception as e:
             print(f"❌ 오류 발생: {e}")
+        finally:
+            # 🎧 mp3 파일 정리
+            if os.path.exists(audio_filename):
+                os.remove(audio_filename)
+                print("🧹 audio.mp3 삭제 완료")
