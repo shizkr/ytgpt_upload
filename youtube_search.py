@@ -56,7 +56,7 @@ def search_youtube(query):
         "part": "snippet",
         "q": query,
         "type": "video",
-        "order": "viewCount",       # Sort by popularity
+        "order": "date",       # Sort by popularity  viewCount
         "videoEmbeddable": "true",  # Only embeddable videos
         "maxResults": MAX_RESULTS,
         "key": API_KEY
