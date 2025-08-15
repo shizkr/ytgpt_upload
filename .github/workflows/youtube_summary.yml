@@ -1,9 +1,8 @@
 name: Daily YouTube Summary
 
 on:
-  #schedule:
-  #  - cron: '0 13 * * *'     # 1회차 
-  #  - cron: '0 1 * * *'      # 2회차
+  schedule:
+    - cron: '0 14 * * *'   # 매일 PST 06:00 (UTC 14:00)
   workflow_dispatch:
 
 jobs:
