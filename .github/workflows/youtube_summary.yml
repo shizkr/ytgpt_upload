@@ -3,6 +3,7 @@ name: Daily YouTube Summary
 on:
   schedule:
     - cron: '0 14 * * *'   # 매일 PST 06:00 (UTC 14:00)
+    - cron: '0 2 * * 4'    # 매주 수요일 PST 18:00 (UTC 목요일 02:00)
   workflow_dispatch:
 
 jobs:
@@ -22,8 +23,19 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run youtube summaries
+        if: github.event.schedule == '0 14 * * *'
         run: |
           python upload_youtube_recommend.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Run weekend upload
+        if: github.event.schedule == '0 2 * * 4'
+        run: |
+          python upload_la_oc_events.py
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
