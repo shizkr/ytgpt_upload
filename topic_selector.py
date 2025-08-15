@@ -188,7 +188,7 @@ TOPIC_MAP = {
     ],
 }
 
-def get_random_topic():
+def get_random_topics():
     today = datetime.datetime.today().weekday()
     today_topics = TOPIC_MAP.get(today, [])
 
@@ -203,3 +203,15 @@ def get_random_topic():
     # 각 게시판에서 하나씩 랜덤 선택
     selected = [random.choice(topics) for topics in grouped.values()]
     return selected
+
+def get_random_topic():
+    today = datetime.datetime.today().weekday()
+    today_topics = TOPIC_MAP.get(today, [])
+
+    if not today_topics:
+        return None  # 없으면 None 반환
+
+    topic = random.choice(today_topics)  # 오늘 주제 중 하나만 선택
+    if isinstance(topic, dict) and "keyword" in topic:
+        return topic["keyword"]  # keyword만 반환
+    return topic  # dict가 아니면 그대로 반환
