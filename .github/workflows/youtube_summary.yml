@@ -23,7 +23,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run youtube summaries
-        if: github.event.schedule == '0 14 * * *'
+        if: |
+          github.event_name == 'workflow_dispatch' || github.event.schedule == '0 14 * * *'
         run: |
           python upload_youtube_recommend.py
         env:
@@ -33,7 +34,8 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
       - name: Run weekend upload
-        if: github.event.schedule == '0 2 * * 4'
+        if: |
+          github.event_name == 'workflow_dispatch' || github.event.schedule == '0 2 * * 4'
         run: |
           python upload_la_oc_events.py
         env:
