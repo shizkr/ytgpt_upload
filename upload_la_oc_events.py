@@ -92,7 +92,7 @@ def get_previous_recommendations():
     response = supabase.table("posts").select("content").eq("board_type", BOARD_TYPE).order("created_at", desc=True).limit(4).execute()
     return response.data
 
-def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGION):
+def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGION, question=None):
     date_label = f"{sat.strftime('%Y-%m-%d')} ~ {sun_end.strftime('%Y-%m-%d')}"
     rotating_categories = get_rotating_categories()
     previous_recommendations = get_previous_recommendations()
