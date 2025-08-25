@@ -1,0 +1,33 @@
+name: Daily YouTube Summary
+
+on:
+  schedule:
+    - cron: '0 2 * * 4'    # 매주 수요일 PST 18:00 (UTC 목요일 02:00)
+  workflow_dispatch:
+
+jobs:
+  run-daily-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run weekend upload
+        if: |
+          github.event_name == 'workflow_dispatch' || github.event.schedule == '0 2 * * 4'
+        run: |
+          python upload_la_oc_events.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
