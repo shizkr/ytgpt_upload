@@ -98,6 +98,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
     previous_recommendations = get_previous_recommendations()
     user_prompt = USER_PROMPT_TEMPLATE.format(
         date_label=date_label,
+        question=question,
         regions=", ".join(regions),
         max_items=max_items,
         preferred_categories=", ".join(rotating_categories),
@@ -187,6 +188,35 @@ def post_to_supabase(title, content, board_type, source, author):
         print("❌ 업로드 실패:", e)
         return None
 
+import random
+
+# 다양한 질문 템플릿 추가
+WEEKEND_QUESTIONS = [
+    {"question": "이번 주말 뭐하지?", "title_format": "이번 주말 뭐하지? OC·LA 추천 액티비티: {date}"},
+    {"question": "주말에 가족과 함께 갈만한 곳 어디 없을까?", "title_format": "가족과 함께! OC·LA 주말 나들이 명소: {date}"},
+    {"question": "데이트하기 좋은 장소 추천해줘", "title_format": "커플 데이트 스팟! OC·LA 주말 추천: {date}"},
+    {"question": "친구들과 놀러가고 싶은데 어디가 좋을까?", "title_format": "친구들과 함께! OC·LA 주말 핫플레이스: {date}"},
+    {"question": "이번 주말 특별한 이벤트 있을까?", "title_format": "특별한 주말! OC·LA 이벤트 모음: {date}"},
+    {"question": "날씨 좋은데 야외 활동하기 좋은 곳 알려줘", "title_format": "야외 활동하기 좋은 OC·LA 주말 명소: {date}"},
+    {"question": "주말 브런치 맛집 어디 있을까?", "title_format": "주말 브런치 & 액티비티 추천! OC·LA 가이드: {date}"},
+    {"question": "문화생활 즐기기 좋은 곳 추천해줘", "title_format": "문화의 주말! OC·LA 예술/전시 추천: {date}"}
+]
+
+def get_random_question():
+    return random.choice(WEEKEND_QUESTIONS)
+
+# USER_PROMPT_TEMPLATE 수정
+USER_PROMPT_TEMPLATE = """
+TASK: Answer the following question for {date_label} (Sat~Sun):
+QUESTION: {question}
+REGIONS: {regions}
+MAX_ITEMS: {max_items}
+
+Schema:
+...
+"""
+
+
 # ---------- MAIN ----------
 if __name__ == "__main__":
     if not OPENAI_API_KEY:
@@ -198,13 +228,24 @@ if __name__ == "__main__":
     weekend_label = f"{sat.strftime('%Y-%m-%d')} ~ {(sat + timedelta(days=1)).strftime('%Y-%m-%d')}"
     print(f"📅 대상 주말: {weekend_label}")
 
-    gpt_data = ask_chatgpt_for_events(REGIONS, sat, sun_end, MAX_EVENTS_PER_REGION)
+    # 랜덤 질문 선택
+    selected_question = get_random_question()
+
+    # ChatGPT 요청 시 질문 포함
+    gpt_data = ask_chatgpt_for_events(
+        regions=REGIONS,
+        sat=sat,
+        sun_end=sun_end,
+        max_items=MAX_EVENTS_PER_REGION,
+        question=selected_question["question"]
+    )
 
     if not gpt_data or not gpt_data.get("regions"):
         print("❗ 유효한 이벤트 데이터를 받지 못했습니다. 종료합니다.")
         raise SystemExit(1)
 
-    title = f"OC·LA 주말 이벤트 추천: {weekend_label}"
+    # 선택된 질문에 맞는 제목 포맷 사용
+    title = selected_question["title_format"].format(date=weekend_label)
     content = build_content(gpt_data, weekend_label)
 
     print("📤 게시글 업로드 중...")
