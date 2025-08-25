@@ -110,7 +110,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
 
     print("💬 Asking ChatGPT for event recommendations...")
     print(user_prompt)  # 디버깅용 전체 프롬프트 출력
-    
+
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",  # 가성비 모델 권장
@@ -195,14 +195,24 @@ import random
 
 # 다양한 질문 템플릿 추가
 WEEKEND_QUESTIONS = [
-    {"question": "이번 주말 뭐하지?", "title_format": "이번 주말 뭐하지? OC·LA 추천 액티비티: {date}"},
-    {"question": "주말에 가족과 함께 갈만한 곳 어디 없을까?", "title_format": "가족과 함께! OC·LA 주말 나들이 명소: {date}"},
-    {"question": "데이트하기 좋은 장소 추천해줘", "title_format": "커플 데이트 스팟! OC·LA 주말 추천: {date}"},
-    {"question": "친구들과 놀러가고 싶은데 어디가 좋을까?", "title_format": "친구들과 함께! OC·LA 주말 핫플레이스: {date}"},
-    {"question": "이번 주말 특별한 이벤트 있을까?", "title_format": "특별한 주말! OC·LA 이벤트 모음: {date}"},
-    {"question": "날씨 좋은데 야외 활동하기 좋은 곳 알려줘", "title_format": "야외 활동하기 좋은 OC·LA 주말 명소: {date}"},
-    {"question": "주말 브런치 맛집 어디 있을까?", "title_format": "주말 브런치 & 액티비티 추천! OC·LA 가이드: {date}"},
-    {"question": "문화생활 즐기기 좋은 곳 추천해줘", "title_format": "문화의 주말! OC·LA 예술/전시 추천: {date}"}
+WEEKEND_QUESTIONS = [
+    {"question": "이번 주말 OC와 LA에서 할만한 재미있는 활동이나 이벤트를 알려줘. 실내/실외 활동 모두 포함해서 추천해줘.", 
+     "title_format": "이번 주말 뭐하지? OC·LA 추천 액티비티: {date}"},
+    {"question": "초등학생 자녀가 있는 가족이 주말에 즐길 수 있는 교육적이면서도 재미있는 장소나 활동을 추천해줘. 박물관, 동물원, 체험활동 등 다양하게 알려줘.", 
+     "title_format": "가족과 함께! OC·LA 주말 나들이 명소: {date}"},
+    {"question": "20-30대 커플이 주말에 가면 좋을 로맨틱하고 분위기 있는 데이트 장소를 추천해줘. 식사와 카페, 산책하기 좋은 곳이나 특별한 체험도 포함해서 알려줘.", 
+     "title_format": "커플 데이트 스팟! OC·LA 주말 추천: {date}"},
+    {"question": "20대 친구들끼리 주말에 놀러가기 좋은 핫플레이스를 추천해줘. 사진 찍기 좋고 트렌디한 장소나 액티비티 위주로 알려줘.", 
+     "title_format": "친구들과 함께! OC·LA 주말 핫플레이스: {date}"},
+    {"question": "이번 주말 OC와 LA에서 열리는 특별한 행사나 이벤트, 페스티벌이 있다면 알려줘. 시간과 장소도 구체적으로 포함해줘.", 
+     "title_format": "특별한 주말! OC·LA 이벤트 모음: {date}"},
+    {"question": "날씨 좋은 주말에 즐기기 좋은 하이킹 코스, 비치, 공원 등 야외 명소를 추천해줘. 각 장소의 특징과 추천 포인트도 설명해줘.", 
+     "title_format": "야외 활동하기 좋은 OC·LA 주말 명소: {date}"},
+    {"question": "주말 브런치로 유명한 맛집과 식사 후에 즐기기 좋은 근처 산책로나 카페를 추천해줘. 분위기 좋은 장소 위주로 알려줘.", 
+     "title_format": "주말 브런치 & 액티비티 추천! OC·LA 가이드: {date}"},
+    {"question": "주말에 즐기기 좋은 미술관, 박물관, 공연장 등 문화예술 명소를 추천해줘. 현재 진행 중인 특별 전시나 공연 정보도 포함해서 알려줘.", 
+     "title_format": "문화의 주말! OC·LA 예술/전시 추천: {date}"}
+]
 ]
 
 def get_random_question():
