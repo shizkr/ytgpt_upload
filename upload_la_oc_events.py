@@ -195,7 +195,6 @@ import random
 
 # 다양한 질문 템플릿 추가
 WEEKEND_QUESTIONS = [
-WEEKEND_QUESTIONS = [
     {"question": "이번 주말 OC와 LA에서 할만한 재미있는 활동이나 이벤트를 알려줘. 실내/실외 활동 모두 포함해서 추천해줘.", 
      "title_format": "이번 주말 뭐하지? OC·LA 추천 액티비티: {date}"},
     {"question": "초등학생 자녀가 있는 가족이 주말에 즐길 수 있는 교육적이면서도 재미있는 장소나 활동을 추천해줘. 박물관, 동물원, 체험활동 등 다양하게 알려줘.", 
@@ -212,7 +211,6 @@ WEEKEND_QUESTIONS = [
      "title_format": "주말 브런치 & 액티비티 추천! OC·LA 가이드: {date}"},
     {"question": "주말에 즐기기 좋은 미술관, 박물관, 공연장 등 문화예술 명소를 추천해줘. 현재 진행 중인 특별 전시나 공연 정보도 포함해서 알려줘.", 
      "title_format": "문화의 주말! OC·LA 예술/전시 추천: {date}"}
-]
 ]
 
 def get_random_question():
