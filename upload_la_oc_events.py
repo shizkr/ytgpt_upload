@@ -38,15 +38,15 @@ def get_upcoming_week_range(now: datetime):
 
 # ---------- CHATGPT ----------
 SYSTEM_PROMPT = """You are a local activities recommender for Southern California.
-Return concise, family-friendly weekend recommendations for Orange County and Los Angeles.
-If specific timed public events are uncertain, include evergreen/weekend-suitable activities (markets, hikes, beaches, museums, seasonal shows).
+Return concise, family-friendly week recommendations for Orange County and Los Angeles.
+If specific timed public events are uncertain, include evergreen/week/weekend-suitable activities (markets, hikes, beaches, museums, seasonal shows).
 ALWAYS return strict JSON following the provided schema. Do not include markdown fences or extra text.
 Times should be local PT. Avoid hallucinating precise addresses; if unsure set address to "" and keep venue generic.
 Limit to MAX_ITEMS per region.
 """
 
 USER_PROMPT_TEMPLATE = """
-TASK: Create weekend recommendations for {date_label} (Sat~Sun).
+TASK: Create week and weekend recommendations for {date_label}.
 QUESTION: {question}
 REGIONS: {regions}
 MAX_ITEMS: {max_items}
@@ -74,10 +74,10 @@ Schema:
 }}
 
 Guidelines:
-- Mix of specific events (if reasonably likely) + evergreen ideas (hikes, beaches, farmers markets, museums, piers, theme parks, scenic drives).
-- Diversity: family-friendly, outdoor, budget/free options included.
-- OC 예시 아이디어: Laguna Beach Heisler Park trail, Crystal Cove hike & tide pools, Irvine Spectrum weekend live music, OC Fair & Event Center events, Dana Point harbor stroll, Huntington Dog Beach.
-- LA 예시 아이디어: Griffith Observatory lawn, The Getty/The Broad, Santa Monica/Venice bike path, Grand Central Market, LACMA Urban Light.
+- Mix of specific events (if reasonably likely) + evergreen ideas (hikes, beaches, farmers markets, museums, piers, theme parks, scenic drives, others).
+- Diversity: family-friendly, outdoor, budget/free options included, other activities.
+- OC 예시 아이디어: Laguna Beach Heisler Park trail
+- LA 예시 아이디어: Griffith Observatory lawn
 - Keep each description short (we will render separately).
 - Return JSON only.
 """
