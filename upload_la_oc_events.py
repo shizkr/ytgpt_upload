@@ -113,7 +113,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
 
     try:
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",  # 가성비 모델 권장
+            model="gpt-4o",  # 가성비 모델 권장
             temperature=0.8,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT.replace("MAX_ITEMS", str(max_items))},
@@ -121,8 +121,19 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
             ]
         )
         text = resp.choices[0].message.content
-        data = json.loads(text)
-        return data
+        print("📝 ChatGPT 응답:", text[:200] + "...") # 응답 내용 일부 출력
+
+        try:
+            data = json.loads(text)
+            if not data.get("regions"):
+                print("❌ regions 데이터가 없습니다")
+                return {}
+            return data
+        except json.JSONDecodeError as e:
+            print("❌ JSON 파싱 실패:", e)
+            print("받은 텍스트:", text)
+            return {}
+        
     except Exception as e:
         print("❌ ChatGPT 요청/파싱 실패:", e)
         return {}
