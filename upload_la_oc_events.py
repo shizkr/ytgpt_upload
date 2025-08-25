@@ -125,7 +125,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
             ]
         )
         text = resp.choices[0].message.content
-        print("📝 ChatGPT 응답:", text[:200] + "...") # 응답 내용 일부 출력
+        print("📝 ChatGPT 응답:", text[:1000] + "...") # 응답 내용 일부 출력
 
         try:
             data = json.loads(text)
