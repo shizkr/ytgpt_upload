@@ -37,7 +37,7 @@ def get_upcoming_week_range(now: datetime):
     return start, end
 
 # ---------- CHATGPT ----------
-SYSTEM_PROMPT = """You are a local weekend concierge for Southern California.
+SYSTEM_PROMPT = """You are a local activities recommender for Southern California.
 Return concise, family-friendly weekend recommendations for Orange County and Los Angeles.
 If specific timed public events are uncertain, include evergreen/weekend-suitable activities (markets, hikes, beaches, museums, seasonal shows).
 ALWAYS return strict JSON following the provided schema. Do not include markdown fences or extra text.
@@ -47,6 +47,7 @@ Limit to MAX_ITEMS per region.
 
 USER_PROMPT_TEMPLATE = """
 TASK: Create weekend recommendations for {date_label} (Sat~Sun).
+QUESTION: {question}
 REGIONS: {regions}
 MAX_ITEMS: {max_items}
 
@@ -230,18 +231,6 @@ WEEKEND_QUESTIONS = [
 
 def get_random_question():
     return random.choice(WEEKEND_QUESTIONS)
-
-# USER_PROMPT_TEMPLATE 수정
-USER_PROMPT_TEMPLATE = """
-TASK: Answer the following question for {date_label} (Sat~Sun):
-QUESTION: {question}
-REGIONS: {regions}
-MAX_ITEMS: {max_items}
-
-Schema:
-...
-"""
-
 
 # ---------- MAIN ----------
 if __name__ == "__main__":
