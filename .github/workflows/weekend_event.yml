@@ -1,4 +1,4 @@
-name: Daily YouTube Summary
+name: Weekend Event Recommendation
 
 on:
   schedule:
@@ -22,8 +22,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run weekend upload
-        if: |
-          github.event_name == 'workflow_dispatch' || github.event.schedule == '0 2 * * 4'
         run: |
           python upload_la_oc_events.py
         env:
