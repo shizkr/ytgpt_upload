@@ -54,6 +54,27 @@ def search_youtube(query, max_results=MAX_RESULTS):
     print(f"🔍 Found {len(results)} videos for query '{query}'")
     return results
 
+def get_recent_topics(days=30):
+    """최근 게시된 유튜브 주제들을 가져옴"""
+    try:
+        # 최근 30일 이내의 게시물 제목 조회
+        response = supabase.table("posts") \
+            .select("title") \
+            .like("title", "유튜브 추천:%") \
+            .gte("created_at", f"now() - interval '{days} days'") \
+            .execute()
+        
+        # "유튜브 추천: " 이후의 실제 주제만 추출
+        topics = []
+        for post in response.data:
+            topic = post['title'].split("유튜브 추천: ")[-1].strip()
+            topics.append(topic)
+        
+        return topics
+    except Exception as e:
+        print(f"❌ 최근 주제 조회 실패: {e}")
+        return []
+
 def post_to_supabase(title, content, board_type, source, author):
     data = {
         "title": title,
@@ -77,6 +98,10 @@ if __name__ == "__main__":
     attempt = 0
     videos = []
 
+    # 최근 게시된 주제들 가져오기
+    recent_topics = get_recent_topics()
+    print(f"🔍 최근 {len(recent_topics)}개의 주제 확인됨")
+
     while attempt < max_attempts:
         # 1) 랜덤 주제 새로 선택
         selected_topic = get_random_topic()
@@ -90,6 +115,12 @@ if __name__ == "__main__":
         else:
             SEARCH_QUERY = str(selected_topic)
             BOARD_TYPE = "today_youtube"
+
+        # 중복 주제 체크
+        if SEARCH_QUERY in recent_topics:
+            print(f"⚠️ '{SEARCH_QUERY}'는 최근에 다룬 주제입니다. 다른 주제 선택...")
+            attempt += 1
+            continue
 
         print(f"\n🔎 '{SEARCH_QUERY}' 유튜브 검색 중... (시도 {attempt+1}/{max_attempts})")
 
