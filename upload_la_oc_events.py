@@ -108,6 +108,9 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
     from openai import OpenAI
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+    print("💬 Asking ChatGPT for event recommendations...")
+    print(user_prompt)  # 디버깅용 전체 프롬프트 출력
+    
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",  # 가성비 모델 권장
@@ -230,6 +233,8 @@ if __name__ == "__main__":
 
     # 랜덤 질문 선택
     selected_question = get_random_question()
+
+    print(f"❓ 선택된 질문: {selected_question['question']}")
 
     # ChatGPT 요청 시 질문 포함
     gpt_data = ask_chatgpt_for_events(
