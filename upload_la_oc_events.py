@@ -24,13 +24,17 @@ REGIONS = ["Orange County, CA", "Los Angeles, CA"]
 MAX_EVENTS_PER_REGION = 6
 
 # ---------- DATE ----------
-def get_upcoming_weekend_range(now: datetime):
-    """금요일 실행 기준: 이번 주 토요일 00:00 ~ 일요일 23:59:59 (로컬)"""
-    weekday = now.weekday()  # Mon=0 ... Sun=6
-    days_until_sat = (5 - weekday) % 7
-    sat = (now + timedelta(days=days_until_sat)).replace(hour=0, minute=0, second=0, microsecond=0)
-    sun_end = (sat + timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
-    return sat, sun_end
+def get_upcoming_week_range(now: datetime):
+    """현재 시점부터 7일간의 범위 반환
+    Returns: 오늘 00:00 ~ 7일 후 23:59:59 (로컬)"""
+    
+    start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = (start + timedelta(days=7)).replace(hour=23, minute=59, second=59, microsecond=0)
+    
+    print(f"🗓 현재: {now.strftime('%Y-%m-%d %H:%M')} ({['월','화','수','목','금','토','일'][now.weekday()]}요일)")
+    print(f"🗓 추천 기간: {start.strftime('%Y-%m-%d')} ~ {end.strftime('%Y-%m-%d')}")
+    
+    return start, end
 
 # ---------- CHATGPT ----------
 SYSTEM_PROMPT = """You are a local weekend concierge for Southern California.
@@ -246,9 +250,9 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     now = datetime.now()
-    sat, sun_end = get_upcoming_weekend_range(now)
-    weekend_label = f"{sat.strftime('%Y-%m-%d')} ~ {(sat + timedelta(days=1)).strftime('%Y-%m-%d')}"
-    print(f"📅 대상 주말: {weekend_label}")
+    start, end = get_upcoming_week_range(now)
+    week_label = f"{start.strftime('%Y-%m-%d')} ~ {end.strftime('%Y-%m-%d')}"
+    print(f"📅 대상 주말: {week_label}")
 
     # 랜덤 질문 선택
     selected_question = get_random_question()
@@ -258,8 +262,8 @@ if __name__ == "__main__":
     # ChatGPT 요청 시 질문 포함
     gpt_data = ask_chatgpt_for_events(
         regions=REGIONS,
-        sat=sat,
-        sun_end=sun_end,
+        sat=start,
+        sun_end=end,
         max_items=MAX_EVENTS_PER_REGION,
         question=selected_question["question"]
     )
@@ -269,8 +273,8 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     # 선택된 질문에 맞는 제목 포맷 사용
-    title = selected_question["title_format"].format(date=weekend_label)
-    content = build_content(gpt_data, weekend_label)
+    title = selected_question["title_format"].format(date=week_label)
+    content = build_content(gpt_data, week_label)
 
     print("📤 게시글 업로드 중...")
     post_to_supabase(
