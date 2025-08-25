@@ -126,7 +126,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
             ]
         )
         text = resp.choices[0].message.content
-        print("📝 ChatGPT 응답:", text[:1000] + "...") # 응답 내용 일부 출력
+        print("📝 ChatGPT 응답:", text[:300] + "...") # 응답 내용 일부 출력
 
         try:
             data = json.loads(text)
@@ -181,8 +181,8 @@ def build_content(gpt_json, weekend_label):
     today_str = datetime.now().strftime("%Y년 %m월 %d일")
     disclaimer = gpt_json.get("disclaimer", "정확한 일정은 공식 홈페이지에서 확인하세요.")
     content = (
-        f"<h2>{today_str} OC·LA 주말 액티비티 추천 ({weekend_label})</h2>"
-        f"<p>이번 주말 가족·커플·친구와 즐길 거리 모음입니다. 즐거운 주말 보내세요! ☀️</p>"
+        f"<h2>{today_str} OC·LA 주간 액티비티 추천 ({weekend_label})</h2>"
+        f"<p>이번 주 가족·커플·친구와 즐길 거리 모음입니다. 즐거운 시간을 보내세요! ☀️</p>"
         f"<!-- more -->"
         + "".join(sections) +
         f"<p style='color:#6b7280;font-size:12px;margin-top:12px;'>※ {disclaimer}</p>"
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     now = datetime.now()
     start, end = get_upcoming_week_range(now)
     week_label = f"{start.strftime('%Y-%m-%d')} ~ {end.strftime('%Y-%m-%d')}"
-    print(f"📅 대상 주말: {week_label}")
+    print(f"📅 대상 기간: {week_label}")
 
     # 랜덤 질문 선택
     selected_question = get_random_question()
@@ -262,7 +262,7 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     # 선택된 질문에 맞는 제목 포맷 사용
-    title = selected_question["title_format"].format(date=week_label)
+    title = selected_question["title_format"]
     content = build_content(gpt_data, week_label)
 
     print("📤 게시글 업로드 중...")
