@@ -76,13 +76,32 @@ Guidelines:
 - Keep each description short (we will render separately).
 - Return JSON only.
 """
+CATEGORIES = [
+    ["outdoor", "food", "family"],
+    ["museum", "market", "sports"],
+    ["music", "seasonal", "event"]
+]
+
+def get_rotating_categories():
+    # 현재 주차에 따라 다른 카테고리 조합 반환
+    week_number = datetime.now().isocalendar()[1]
+    return CATEGORIES[week_number % len(CATEGORIES)]
+
+def get_previous_recommendations():
+    # 최근 몇 주간의 추천 내역을 가져와서 중복 방지
+    response = supabase.table("posts").select("content").eq("board_type", BOARD_TYPE).order("created_at", desc=True).limit(4).execute()
+    return response.data
 
 def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGION):
     date_label = f"{sat.strftime('%Y-%m-%d')} ~ {sun_end.strftime('%Y-%m-%d')}"
+    rotating_categories = get_rotating_categories()
+    previous_recommendations = get_previous_recommendations()
     user_prompt = USER_PROMPT_TEMPLATE.format(
         date_label=date_label,
         regions=", ".join(regions),
-        max_items=max_items
+        max_items=max_items,
+        preferred_categories=", ".join(rotating_categories),
+        avoid_previous=previous_recommendations
     )
 
     from openai import OpenAI
@@ -91,7 +110,7 @@ def ask_chatgpt_for_events(regions, sat, sun_end, max_items=MAX_EVENTS_PER_REGIO
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",  # 가성비 모델 권장
-            temperature=0.4,
+            temperature=0.8,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT.replace("MAX_ITEMS", str(max_items))},
                 {"role": "user", "content": user_prompt}
